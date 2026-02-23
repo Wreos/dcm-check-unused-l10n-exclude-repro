@@ -12,12 +12,15 @@ This repo mirrors the relevant `CustomerApp` structure:
 
 ## Repro setup
 
-Two files intentionally trigger `check-unused-l10n` findings:
+The package defines `AppLocalizations` with 50 keys in:
 
 - `packages/l10n/lib/src/l10n/gen/app_localizations.dart`
-- `test/test_env.dart`
 
-`test/test_env.dart` is a copy of generated localization code to force l10n findings in `test/`.
+Usage file references keys `key01..key48`:
+
+- `packages/l10n/lib/src/localization_usage.dart`
+
+So exactly 2 keys (`key49`, `key50`) remain unused.
 
 ## Run
 
@@ -31,11 +34,14 @@ dcm check-unused-l10n . --class-pattern "^AppLocalizations$" --exclude="{**/l10n
 
 ## Actual results (DCM 1.35.0)
 
-- `--exclude="**/l10n/gen/**"` excludes `packages/l10n/.../gen`, leaves `test/test_env.dart` (4 issues)
-- `--exclude="test/**"` excludes `test`, leaves `packages/l10n/.../gen/app_localizations.dart` (4 issues)
-- `--exclude="**/test/**"` does **not** exclude root `test/` (8 issues, both paths)
-- `--exclude="{**/l10n/gen/**,**/test/**}"` leaves `test/test_env.dart` (4 issues)
-- `--exclude="{**/l10n/gen/**,test/**}"` excludes both (0 scanned files)
+For all patterns below, DCM still reports the same 2 issues from:
+`packages/l10n/lib/src/l10n/gen/app_localizations.dart` (`key49`, `key50`).
+
+- `--exclude="**/l10n/gen/**"` -> 2 issues
+- `--exclude="test/**"` -> 2 issues
+- `--exclude="**/test/**"` -> 2 issues
+- `--exclude="{**/l10n/gen/**,**/test/**}"` -> 2 issues
+- `--exclude="{**/l10n/gen/**,test/**}"` -> 2 issues
 
 ## Expected
 
